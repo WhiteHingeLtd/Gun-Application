@@ -99,20 +99,21 @@ Public Class Main
 
 
                     Try
-                        addstring = item.Title.Label + " (week " + Math.Ceiling(Now.AddDays((item.Stock.Total - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + ")"
+                        addstring = Math.Ceiling(Now.AddDays((item.Stock.Total - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + " | " + item.Title.Label
+
                     Catch ex As Exception
                         addstring = item.Title.Label
                     End Try
 
+                    ItemsInLocation.Items.Add(addstring)
+                    'For i As Integer = 0 To addstring.Length - 1 Step 36
+                    '    Try
+                    '        ItemsInLocation.Items.Add(addstring.Substring(i, 36))
+                    '    Catch ex As Exception
+                    '        ItemsInLocation.Items.Add(addstring.Substring(i))
+                    '    End Try
 
-                    For i As Integer = 0 To addstring.Length - 1 Step 36
-                        Try
-                            ItemsInLocation.Items.Add(addstring.Substring(i, 36))
-                        Catch ex As Exception
-                            ItemsInLocation.Items.Add(addstring.Substring(i))
-                        End Try
-
-                    Next
+                    'Next
                     ItemsInLocation.Items.Add("")
                 Next
                 LocationPanel.Visible = True
@@ -171,7 +172,7 @@ Public Class Main
                 LocationPanel.Visible = False
                 ItemPanel.Visible = True
                 Scanbox.Focus()
-                Instruct("Choose an action or scan another item")
+                Instruct(Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
             Else
                 IMSgC.iMsg("You need to scan your user ID.", "User Error")
                 Instruct("Scan User ID", Color.Red)
@@ -203,8 +204,9 @@ Public Class Main
 
     Private Sub PrintLabelButton_Click(sender As Object, e As EventArgs) Handles PrintLabelButton.Click
         'IMSgC.iMsg("You can't do that yet", "Incomplete feature")
-        labels.PrepackDelivery(ActiveSingle.Title.Label, GetIntials(PrepackLabel.Text), PackByLabel.Text, WeeksWorthLabel.Text + " weeks worth", ActiveSingle.GetLocation(SKULocation.SKULocationType.Pickable).LocationText, (New Printing.PrinterSettings).PrinterName)
+        labels.PrepackDelivery(ActiveSingle.Title.Label, GetIntials(PrepackLabel.Text), PackByLabel.Text, WeeksWorthLabel.Text + " weeks worth", ActiveSingle.GetLocation(SKULocation.SKULocationType.Pickable).LocationText, Newstockval.ToString, (New Printing.PrinterSettings).PrinterName)
         refox()
+        Instruct("Label printed", Color.Green)
     End Sub
 
     Public Function AskNewStock() As Integer
@@ -262,6 +264,16 @@ Public Class Main
     Private Sub Scanbox_KeyDown(sender As Object, e As KeyEventArgs) Handles Scanbox.KeyDown
         If e.KeyCode = Keys.Down And ItemPanel.Visible = True Then
             PrintLabelButton.Focus()
+        ElseIf e.KeyCode = Keys.F10 And ItemPanel.Visible = True And Not IsNothing(ActiveSingle) Then
+            Newstockval = RequestScan("Weeks stock for multiply") * ActiveSingle.SalesData.CombinedWeekly
+
+            Dim WeeksRemaining As Single = (ActiveSingle.Stock.Total - Newstockval) / ActiveSingle.SalesData.CombinedWeekly
+            Dim Newweeks As Single = (Newstockval / ActiveSingle.SalesData.CombinedWeekly)
+
+            'Upodate the UI with stuff.
+            WeeksWorthLabel.Text = Math.Floor(Newweeks).ToString
+            PackByLabel.Text = Math.Ceiling(Now.AddDays(WeeksRemaining * 7).DayOfYear / 7).ToString
+            Instruct(Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
         End If
     End Sub
 

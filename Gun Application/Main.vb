@@ -92,7 +92,14 @@ Public Class Main
                     Dim newstock As string = item.Locations.Where(Function(x As SKULocation) x.LocationID.ToString = Data.Replace("qlo", ""))(0).Additional
                     Dim addstring As String = ""
                     Try
-                        addstring = item.Title.Label + " (week " + Math.Ceiling(Now.AddDays((item.Stock.Level - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + ")"
+                        item.UpdateStock()
+                    Catch ex As Exception
+
+                    End Try
+
+
+                    Try
+                        addstring = item.Title.Label + " (week " + Math.Ceiling(Now.AddDays((item.Stock.Total - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + ")"
                     Catch ex As Exception
                         addstring = item.Title.Label
                     End Try
@@ -142,8 +149,15 @@ Public Class Main
                     End If
                 Next
 
+                'Update stpck
+                Try
+                    ActiveSingle.UpdateStock()
+                Catch ex As Exception
+
+                End Try
+
                 'Calcualte weeks remaining and worth.
-                Dim WeeksRemaining As Single = (ActiveSingle.Stock.Level - NewStock) / ActiveSingle.SalesData.CombinedWeekly
+                Dim WeeksRemaining As Single = (ActiveSingle.Stock.Total - NewStock) / ActiveSingle.SalesData.CombinedWeekly
                 Dim Newweeks As Single = (NewStock / ActiveSingle.SalesData.CombinedWeekly)
 
                 'Upodate the UI with stuff.

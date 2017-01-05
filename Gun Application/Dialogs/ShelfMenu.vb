@@ -12,7 +12,11 @@ Public Class ShelfMenu
         TitleText.Text = ActiveSingle.Title.Label
         _AC = ActiveCollection
         For Each item As WhlSKU In _AC
-            item.RefreshLocations()
+            Try
+                item.RefreshLocations()
+            Catch ex As Exception
+
+            End Try
         Next
         _AS = ActiveSingle
         ExistingShelvesDialog.Controls.Clear()

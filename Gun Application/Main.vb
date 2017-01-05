@@ -62,6 +62,7 @@ Public Class Main
     Dim ActiveCollection As SkuCollection
     Dim ActiveSingle As WhlSKU
     Friend Newstockval As Integer
+    Dim ActiveLocationID As Integer
 
 
     '=============================================================================
@@ -88,6 +89,8 @@ Public Class Main
                 ItemsInLocationLabel.Text = "Items at " + Location + ":."
                 ItemsInLocation.Items.Clear()
                 Dim items As SkuCollection = Skus.SearchLocationIDs(Convert.ToInt32(Data.Replace("qlo", ""))).MakeMixdown
+                ActiveCollection = items
+                ActiveLocationID = Convert.ToInt32(Data.Replace("qlo", ""))
                 For Each item As WhlSKU In items
                     Dim newstock As string = item.Locations.Where(Function(x As SKULocation) x.LocationID.ToString = Data.Replace("qlo", ""))(0).Additional
                     Dim addstring As String = ""
@@ -114,7 +117,6 @@ Public Class Main
                     '    End Try
 
                     'Next
-                    ItemsInLocation.Items.Add("")
                 Next
                 LocationPanel.Visible = True
                 ItemPanel.Visible = False
@@ -130,9 +132,7 @@ Public Class Main
                 'Item
                 ActiveCollection = Skus.GatherChildren(Data.Substring(0, 7))
 
-                'Ask user how much new stock there is.
-                Dim NewStock As Integer = AskNewStock()
-                Newstockval = NewStock
+
                 'Iterate through each packsize and check the prepack setting - If it's listed
                 Dim prepack As String = ""
                 For Each item As WhlSKU In ActiveCollection
@@ -157,15 +157,44 @@ Public Class Main
 
                 End Try
 
+                'Alert about existing locations if there are any.
+                Dim CurrentPrepacks As List(Of SKULocation) = ActiveSingle.GetLocationsByType(SKULocation.SKULocationType.Prepack)
+                If CurrentPrepacks.Count = 1 Then
+                    Dim Prompt As New ExistingShelfPrompt
+                    Prompt.TitleText.Text = "Exists in prepack..."
+                    Prompt.Body.Text = "This item already lives in prepack at the following location: " + vbNewLine + vbNewLine + CurrentPrepacks(0).LocationText
+                    Prompt.user = authd
+                    Prompt.PrimaryLocationID = CurrentPrepacks(0).LocationID
+                    Prompt.ActiveCollection = ActiveCollection
+                    Prompt.DeleteButton.Text = "Delete " + CurrentPrepacks(0).LocationText
+                    Prompt.ShowDialog()
+                ElseIf CurrentPrepacks.Count > 0 Then
+                    'Create string.
+                    Dim locstring As String = "This item already lives in prepack at the following locations:" + vbNewLine + vbNewLine
+                    For Each location As SKULocation In CurrentPrepacks
+                        locstring += location.LocationText + vbNewLine
+                    Next
+                    IMSgC.iMsg(locstring, "Exists in prepack...")
+
+                End If
+
+                'Ask user how much new stock there is.
+                Dim NewStock As Integer = AskNewStock()
+                Newstockval = NewStock
+                If ActiveSingle.SalesData.CombinedWeekly = 0 Then ActiveSingle.SalesData.CombinedWeekly = 1
                 'Calcualte weeks remaining and worth.
                 Dim WeeksRemaining As Single = (ActiveSingle.Stock.Total - NewStock) / ActiveSingle.SalesData.CombinedWeekly
                 Dim Newweeks As Single = (NewStock / ActiveSingle.SalesData.CombinedWeekly)
-
                 'Upodate the UI with stuff.
                 ItemTitle.Text = ActiveSingle.Title.Label
                 PrepackLabel.Text = prepack
                 WeeksWorthLabel.Text = Math.Floor(Newweeks).ToString
+
                 PackByLabel.Text = Math.Ceiling(Now.AddDays(WeeksRemaining * 7).DayOfYear / 7).ToString
+                If (Now.AddDays(WeeksRemaining * 7) - Now).TotalDays > 350 Then
+                    PackByLabel.Text = "!!"
+                End If
+
 
                 UpdateLocations()
 
@@ -204,7 +233,7 @@ Public Class Main
 
     Private Sub PrintLabelButton_Click(sender As Object, e As EventArgs) Handles PrintLabelButton.Click
         'IMSgC.iMsg("You can't do that yet", "Incomplete feature")
-        labels.PrepackDelivery(ActiveSingle.Title.Label, GetIntials(PrepackLabel.Text), PackByLabel.Text, WeeksWorthLabel.Text + " weeks worth", ActiveSingle.GetLocation(SKULocation.SKULocationType.Pickable).LocationText, Newstockval.ToString, (New Printing.PrinterSettings).PrinterName)
+        labels.PrepackDelivery(ActiveSingle.Title.Label, GetIntials(PrepackLabel.Text), PackByLabel.Text, WeeksWorthLabel.Text + " weeks worth", ActiveSingle.ShortSku.Substring(2), Newstockval.ToString, (New Printing.PrinterSettings).PrinterName)
         refox()
         Instruct("Label printed", Color.Green)
     End Sub
@@ -288,5 +317,19 @@ Public Class Main
     Private Sub refox()
         Scanbox.Text = ""
         Scanbox.Focus()
+    End Sub
+
+    Private Sub CoolButton1_Click_1(sender As Object, e As EventArgs) Handles RemoveAllButton.Click
+        Misc.OperationDialog("Remove items from shelf", AddressOf RemoveAllShelfLocations)
+        Instruct("Now scan them back.")
+        refox()
+    End Sub
+
+    Private Sub RemoveAllShelfLocations()
+        For Each item As WhlSKU In ActiveCollection
+            For Each child As WhlSKU In Skus.GatherChildren(item.ShortSku)
+                child.RemoveLocation(ActiveLocationID, authd)
+            Next
+        Next
     End Sub
 End Class

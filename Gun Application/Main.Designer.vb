@@ -44,6 +44,7 @@ Partial Class Main
         Me.PrintLabelButton = New WHLClasses.Controls.CoolButton()
         Me.ChangePrepackButton = New WHLClasses.Controls.CoolButton()
         Me.InstructBox = New System.Windows.Forms.Label()
+        Me.RemoveAllButton = New WHLClasses.Controls.CoolButton()
         Me.LocationPanel.SuspendLayout()
         Me.ItemPanel.SuspendLayout()
         Me.SuspendLayout()
@@ -111,6 +112,7 @@ Partial Class Main
         Me.LocationPanel.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.LocationPanel.Controls.Add(Me.RemoveAllButton)
         Me.LocationPanel.Controls.Add(Me.ItemsInLocationLabel)
         Me.LocationPanel.Controls.Add(Me.ItemsInLocation)
         Me.LocationPanel.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -123,11 +125,11 @@ Partial Class Main
         'ItemsInLocationLabel
         '
         Me.ItemsInLocationLabel.AutoSize = True
-        Me.ItemsInLocationLabel.Location = New System.Drawing.Point(10, 7)
+        Me.ItemsInLocationLabel.Location = New System.Drawing.Point(8, 11)
         Me.ItemsInLocationLabel.Name = "ItemsInLocationLabel"
-        Me.ItemsInLocationLabel.Size = New System.Drawing.Size(147, 18)
+        Me.ItemsInLocationLabel.Size = New System.Drawing.Size(132, 18)
         Me.ItemsInLocationLabel.TabIndex = 1
-        Me.ItemsInLocationLabel.Text = "ItemsInLocationLabel"
+        Me.ItemsInLocationLabel.Text = "Items At Yorke 000"
         '
         'ItemsInLocation
         '
@@ -143,6 +145,7 @@ Partial Class Main
         Me.ItemsInLocation.Items.AddRange(New Object() {"1234567890123456789012345678901234567890"})
         Me.ItemsInLocation.Location = New System.Drawing.Point(4, 38)
         Me.ItemsInLocation.Name = "ItemsInLocation"
+        Me.ItemsInLocation.ScrollAlwaysVisible = True
         Me.ItemsInLocation.Size = New System.Drawing.Size(310, 218)
         Me.ItemsInLocation.TabIndex = 0
         '
@@ -374,6 +377,22 @@ Partial Class Main
         Me.InstructBox.Text = "Scan User ID"
         Me.InstructBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'RemoveAllButton
+        '
+        Me.RemoveAllButton.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.RemoveAllButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(CType(CType(246, Byte), Integer), CType(CType(247, Byte), Integer), CType(CType(248, Byte), Integer))
+        Me.RemoveAllButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
+        Me.RemoveAllButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
+        Me.RemoveAllButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.RemoveAllButton.Location = New System.Drawing.Point(167, 4)
+        Me.RemoveAllButton.Name = "RemoveAllButton"
+        Me.RemoveAllButton.Size = New System.Drawing.Size(150, 30)
+        Me.RemoveAllButton.TabIndex = 80
+        Me.RemoveAllButton.Text = "Remove All"
+        Me.RemoveAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.RemoveAllButton.UseVisualStyleBackColor = True
+        '
         'Main
         '
         Me.AcceptButton = Me.ScanButton
@@ -422,4 +441,5 @@ Partial Class Main
     Friend WithEvents Label4 As Label
     Friend WithEvents WeeksWorthLabel As Label
     Friend WithEvents Label3 As Label
+    Friend WithEvents RemoveAllButton As WHLClasses.Controls.CoolButton
 End Class

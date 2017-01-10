@@ -22,11 +22,13 @@ Partial Class Main
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.QuitButton = New WHLClasses.Controls.CoolButton()
         Me.RestartButton = New WHLClasses.Controls.CoolButton()
         Me.Scanbox = New System.Windows.Forms.TextBox()
         Me.ScanButton = New WHLClasses.Controls.CoolButton()
         Me.LocationPanel = New System.Windows.Forms.Panel()
+        Me.RemoveAllButton = New WHLClasses.Controls.CoolButton()
         Me.ItemsInLocationLabel = New System.Windows.Forms.Label()
         Me.ItemsInLocation = New System.Windows.Forms.ListBox()
         Me.ItemPanel = New System.Windows.Forms.Panel()
@@ -44,7 +46,9 @@ Partial Class Main
         Me.PrintLabelButton = New WHLClasses.Controls.CoolButton()
         Me.ChangePrepackButton = New WHLClasses.Controls.CoolButton()
         Me.InstructBox = New System.Windows.Forms.Label()
-        Me.RemoveAllButton = New WHLClasses.Controls.CoolButton()
+        Me._90MinRestart = New System.Windows.Forms.Timer(Me.components)
+        Me.UpdateLocationsWorker = New System.ComponentModel.BackgroundWorker()
+        Me.WorkerSku = New System.Windows.Forms.Label()
         Me.LocationPanel.SuspendLayout()
         Me.ItemPanel.SuspendLayout()
         Me.SuspendLayout()
@@ -122,6 +126,22 @@ Partial Class Main
         Me.LocationPanel.TabIndex = 4
         Me.LocationPanel.Visible = False
         '
+        'RemoveAllButton
+        '
+        Me.RemoveAllButton.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.RemoveAllButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(CType(CType(246, Byte), Integer), CType(CType(247, Byte), Integer), CType(CType(248, Byte), Integer))
+        Me.RemoveAllButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
+        Me.RemoveAllButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
+        Me.RemoveAllButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.RemoveAllButton.Location = New System.Drawing.Point(167, 4)
+        Me.RemoveAllButton.Name = "RemoveAllButton"
+        Me.RemoveAllButton.Size = New System.Drawing.Size(150, 30)
+        Me.RemoveAllButton.TabIndex = 80
+        Me.RemoveAllButton.Text = "Remove All"
+        Me.RemoveAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.RemoveAllButton.UseVisualStyleBackColor = True
+        '
         'ItemsInLocationLabel
         '
         Me.ItemsInLocationLabel.AutoSize = True
@@ -154,6 +174,7 @@ Partial Class Main
         Me.ItemPanel.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.ItemPanel.Controls.Add(Me.WorkerSku)
         Me.ItemPanel.Controls.Add(Me.Label3)
         Me.ItemPanel.Controls.Add(Me.PackByHint)
         Me.ItemPanel.Controls.Add(Me.ItemTitle)
@@ -323,7 +344,7 @@ Partial Class Main
         Me.ShelfMenuButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
         Me.ShelfMenuButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
         Me.ShelfMenuButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.ShelfMenuButton.Location = New System.Drawing.Point(10, 196)
+        Me.ShelfMenuButton.Location = New System.Drawing.Point(20, 195)
         Me.ShelfMenuButton.Name = "ShelfMenuButton"
         Me.ShelfMenuButton.Size = New System.Drawing.Size(296, 30)
         Me.ShelfMenuButton.TabIndex = 5
@@ -339,7 +360,7 @@ Partial Class Main
         Me.PrintLabelButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
         Me.PrintLabelButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
         Me.PrintLabelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.PrintLabelButton.Location = New System.Drawing.Point(10, 161)
+        Me.PrintLabelButton.Location = New System.Drawing.Point(20, 160)
         Me.PrintLabelButton.Name = "PrintLabelButton"
         Me.PrintLabelButton.Size = New System.Drawing.Size(296, 30)
         Me.PrintLabelButton.TabIndex = 4
@@ -355,7 +376,7 @@ Partial Class Main
         Me.ChangePrepackButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
         Me.ChangePrepackButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
         Me.ChangePrepackButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.ChangePrepackButton.Location = New System.Drawing.Point(10, 231)
+        Me.ChangePrepackButton.Location = New System.Drawing.Point(20, 230)
         Me.ChangePrepackButton.Name = "ChangePrepackButton"
         Me.ChangePrepackButton.Size = New System.Drawing.Size(296, 30)
         Me.ChangePrepackButton.TabIndex = 6
@@ -377,21 +398,23 @@ Partial Class Main
         Me.InstructBox.Text = "Scan User ID"
         Me.InstructBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'RemoveAllButton
+        '_90MinRestart
         '
-        Me.RemoveAllButton.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.RemoveAllButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(CType(CType(246, Byte), Integer), CType(CType(247, Byte), Integer), CType(CType(248, Byte), Integer))
-        Me.RemoveAllButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(CType(CType(118, Byte), Integer), CType(CType(133, Byte), Integer), CType(CType(150, Byte), Integer))
-        Me.RemoveAllButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(CType(CType(105, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(152, Byte), Integer))
-        Me.RemoveAllButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.RemoveAllButton.Location = New System.Drawing.Point(167, 4)
-        Me.RemoveAllButton.Name = "RemoveAllButton"
-        Me.RemoveAllButton.Size = New System.Drawing.Size(150, 30)
-        Me.RemoveAllButton.TabIndex = 80
-        Me.RemoveAllButton.Text = "Remove All"
-        Me.RemoveAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.RemoveAllButton.UseVisualStyleBackColor = True
+        Me._90MinRestart.Interval = 5400000
+        '
+        'UpdateLocationsWorker
+        '
+        Me.UpdateLocationsWorker.WorkerReportsProgress = True
+        Me.UpdateLocationsWorker.WorkerSupportsCancellation = True
+        '
+        'WorkerSku
+        '
+        Me.WorkerSku.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.WorkerSku.Location = New System.Drawing.Point(4, 160)
+        Me.WorkerSku.Name = "WorkerSku"
+        Me.WorkerSku.Size = New System.Drawing.Size(10, 97)
+        Me.WorkerSku.TabIndex = 16
+        Me.WorkerSku.Text = "1005630"
         '
         'Main
         '
@@ -442,4 +465,7 @@ Partial Class Main
     Friend WithEvents WeeksWorthLabel As Label
     Friend WithEvents Label3 As Label
     Friend WithEvents RemoveAllButton As WHLClasses.Controls.CoolButton
+    Friend WithEvents _90MinRestart As Timer
+    Friend WithEvents WorkerSku As Label
+    Friend WithEvents UpdateLocationsWorker As System.ComponentModel.BackgroundWorker
 End Class

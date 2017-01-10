@@ -9,6 +9,7 @@ Public Class Main
 
     Private Sub CoolButton1_Click(sender As Object, e As EventArgs) Handles QuitButton.Click
         Process.Start("C:\Windows\explorer.exe")
+        UpdateLocationsWorker.CancelAsync()
         Me.Close()
 
     End Sub
@@ -23,6 +24,7 @@ Public Class Main
         Catch ex As Exception
 
         End Try
+        UpdateLocationsWorker.CancelAsync()
         Application.Restart()
     End Sub
 
@@ -30,10 +32,6 @@ Public Class Main
         If color = Nothing Then color = Color.DarkBlue
         InstructBox.Text = Message
         InstructBox.ForeColor = color
-    End Sub
-
-    Private Sub CoolButton3_Click(sender As Object, e As EventArgs)
-
     End Sub
 
     Private Sub Scanbox_Leave(sender As Object, e As EventArgs) Handles Scanbox.Leave
@@ -102,7 +100,7 @@ Public Class Main
 
 
                     Try
-                        addstring = Math.Ceiling(Now.AddDays((item.Stock.Total - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + " | " + item.Title.Label
+                        addstring = Math.Round(Now.AddDays((item.Stock.Total - Convert.ToInt32(newstock)) / item.SalesData.CombinedWeekly * 7).DayOfYear / 7).ToString() + " | " + item.Title.Label
 
                     Catch ex As Exception
                         addstring = item.Title.Label
@@ -288,6 +286,8 @@ Public Class Main
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         PackByHint.Text = "Pack By (Now " + Math.Ceiling(Now.DayOfYear / 7).ToString + ")"
+        UpdateLocationsWorker.RunWorkerAsync()
+
     End Sub
 
     Private Sub Scanbox_KeyDown(sender As Object, e As KeyEventArgs) Handles Scanbox.KeyDown
@@ -301,7 +301,7 @@ Public Class Main
 
             'Upodate the UI with stuff.
             WeeksWorthLabel.Text = Math.Floor(Newweeks).ToString
-            PackByLabel.Text = Math.Ceiling(Now.AddDays(WeeksRemaining * 7).DayOfYear / 7).ToString
+            PackByLabel.Text = Math.Round(Now.AddDays(WeeksRemaining * 7).DayOfYear / 7).ToString
             Instruct(Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
         End If
     End Sub
@@ -331,5 +331,37 @@ Public Class Main
                 child.RemoveLocation(ActiveLocationID, authd)
             Next
         Next
+    End Sub
+
+    Private Sub _90MinRestart_Tick(sender As Object, e As EventArgs) Handles _90MinRestart.Tick
+        IMSgC.iMsg("You should [RESTART] the app now. This is to load fresh item details like stock and sales.")
+    End Sub
+
+    Private Sub UpdateLocationsWorker_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles UpdateLocationsWorker.DoWork
+        While True
+            If Not IsNothing(Skus) Then
+                For Each sku As WhlSKU In Skus
+                    If Not UpdateLocationsWorker.CancellationPending Then
+                        Try
+                            sku.RefreshLocations()
+
+                        Catch ex As Exception
+
+                        End Try
+                        UpdateLocationsWorker.ReportProgress(0, sku.ShortSku)
+                    Else
+                        Exit While
+                    End If
+                Next
+            Else
+                Threading.Thread.Sleep(500)
+            End If
+
+
+        End While
+    End Sub
+
+    Private Sub UpdateLocationsWorker_ProgressChanged(sender As Object, e As System.ComponentModel.ProgressChangedEventArgs) Handles UpdateLocationsWorker.ProgressChanged
+        WorkerSku.Text = e.UserState.ToString
     End Sub
 End Class

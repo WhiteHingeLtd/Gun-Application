@@ -156,7 +156,7 @@ Public Class Main
                 End Try
 
                 'Alert about existing locations if there are any.
-                Dim CurrentPrepacks As List(Of SKULocation) = ActiveSingle.GetLocationsByType(SKULocation.SKULocationType.Prepack)
+                Dim CurrentPrepacks As List(Of SKULocation) = ActiveSingle.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
                 If CurrentPrepacks.Count = 1 Then
                     Dim Prompt As New ExistingShelfPrompt
                     Prompt.TitleText.Text = "Exists in prepack..."
@@ -199,7 +199,7 @@ Public Class Main
                 LocationPanel.Visible = False
                 ItemPanel.Visible = True
                 Scanbox.Focus()
-                Instruct(Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
+                Instruct(ActiveSingle.ShortSku + "| " + Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
             Else
                 IMSgC.iMsg("You need to scan your user ID.", "User Error")
                 Instruct("Scan User ID", Color.Red)
@@ -269,7 +269,7 @@ Public Class Main
             Catch ex As Exception
             End Try
         Next
-        For Each location As SKULocation In ActiveSingle.GetLocationsByType(SKULocation.SKULocationType.Prepack)
+        For Each location As SKULocation In ActiveSingle.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
             LocationsLabel.Text += location.LocationText + " "
         Next
 

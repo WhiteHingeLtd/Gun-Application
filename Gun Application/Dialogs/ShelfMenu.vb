@@ -20,7 +20,7 @@ Public Class ShelfMenu
         Next
         _AS = ActiveSingle
         ExistingShelvesDialog.Controls.Clear()
-        For Each location As SKULocation In _AS.GetLocationsByType(SKULocation.SKULocationType.Prepack)
+        For Each location As SKULocation In _AS.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
             ExistingShelvesDialog.Controls.Add(CreateButton(location.LocationText, location.LocationID))
         Next
         'ExistingShelvesDialog.Controls.Add(CreateButton("A01-21", 122))

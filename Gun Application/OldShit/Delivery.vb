@@ -10,7 +10,7 @@ Public Class Delivery
 
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Delivery = MySql.SelectData("SELECT * FROM whldata.deliverydata")
+        Delivery = MSSQLPublic.SelectData("SELECT * FROM whldata.deliverydata")
         Me.BackgroundImage = My.Resources.Background
         Dim loader As New WHLClasses.GenericDataController
 

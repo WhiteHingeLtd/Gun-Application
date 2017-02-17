@@ -83,7 +83,7 @@ Public Class Main
         ElseIf Data.StartsWith("qlo") Then
             If Not IsNothing(authd) Then
                 'Lookup the location
-                Dim Location As String = MySQL.SelectData("SELECT locText FROM whldata.locationreference WHERE locID=" + Data.Replace("qlo", "") + ";")(0)(0)
+                Dim Location As String = MSSQLPublic.SelectData("SELECT locText FROM whldata.locationreference WHERE locID=" + Data.Replace("qlo", "") + ";")(0)(0)
                 ItemsInLocationLabel.Text = "Items at " + Location + ":."
                 ItemsInLocation.Items.Clear()
                 Dim items As SkuCollection = Skus.SearchLocationIDs(Convert.ToInt32(Data.Replace("qlo", ""))).MakeMixdown
@@ -136,11 +136,11 @@ Public Class Main
                 For Each item As WhlSKU In ActiveCollection
                     If item.PackSize = 1 Then
                         ActiveSingle = item
-                        Dim response As ArrayList = MySQL.SelectData("SELECT * FROM whldata.prepack_type WHERE Sku='" + item.ShortSku + "';")
+                        Dim response As ArrayList = MSSQLPublic.SelectData("SELECT * FROM whldata.prepack_type WHERE Sku='" + item.ShortSku + "';")
                         If response.Count = 0 Then
                             prepack = PrepackTypeChooser.ChoosePrepack(item.Title.Label)
                             If Not prepack = "Cancel" Then
-                                MySQL.insertUpdate("REPLACE INTO whldata.prepack_type (Sku, Type) VALUES ('" + item.ShortSku + "','" + prepack + "')")
+                                MSSQLPublic.insertUpdate("REPLACE INTO whldata.prepack_type (Sku, Type) VALUES ('" + item.ShortSku + "','" + prepack + "')")
                             End If
                         Else
                             prepack = response(0)(1).ToString
@@ -253,7 +253,7 @@ Public Class Main
         Dim prepack As String
         prepack = PrepackTypeChooser.ChoosePrepack(ActiveSingle.PackSize.ToString + " pack - Prepack type")
         If Not prepack = "Cancel" Then
-            MySQL.insertUpdate("REPLACE INTO whldata.prepack_type (Sku, Type) VALUES ('" + ActiveSingle.ShortSku + "','" + prepack + "')")
+            MSSQLPublic.insertUpdate("REPLACE INTO whldata.prepack_type (Sku, Type) VALUES ('" + ActiveSingle.ShortSku + "','" + prepack + "')")
         End If
         PrepackLabel.Text = prepack
         Instruct("Done. Choose an action or scan")

@@ -13,7 +13,7 @@ Public Class ItemActioner
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Execute.Click
-        queryresp = MySql.SelectData("SELECT binrack,shortsku,labelshort FROM whldata.whlnew WHERE shortsku='" + SearchBox.Text + "' ORDER BY sku ASC LIMIT 1")
+        queryresp = MSSQLPublic.SelectData("SELECT TOP 1 binrack,shortsku,labelshort FROM whldata.whlnew WHERE shortsku='" + SearchBox.Text + "' ORDER BY sku ASC")
         If queryresp.Count = 0 Then
             labelshort.Text = "Nothing found with that ShortSKU"
         Else
@@ -35,7 +35,7 @@ Public Class ItemActioner
 
     Private Sub ItemActioner_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ResetThing()
-        employees = MySql.SelectData("SELECT * FROM whldata.employees")
+        employees = MSSQLPublic.SelectData("SELECT * FROM whldata.employees")
         Dim newline As New ArrayList
         newline.Add("Area")
         newline.Add("Action")

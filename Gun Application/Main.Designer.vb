@@ -32,6 +32,7 @@ Partial Class Main
         Me.ItemsInLocationLabel = New System.Windows.Forms.Label()
         Me.ItemsInLocation = New System.Windows.Forms.ListBox()
         Me.ItemPanel = New System.Windows.Forms.Panel()
+        Me.WorkerSku = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.PackByHint = New System.Windows.Forms.Label()
         Me.ItemTitle = New System.Windows.Forms.Label()
@@ -48,7 +49,6 @@ Partial Class Main
         Me.InstructBox = New System.Windows.Forms.Label()
         Me._90MinRestart = New System.Windows.Forms.Timer(Me.components)
         Me.UpdateLocationsWorker = New System.ComponentModel.BackgroundWorker()
-        Me.WorkerSku = New System.Windows.Forms.Label()
         Me.LocationPanel.SuspendLayout()
         Me.ItemPanel.SuspendLayout()
         Me.SuspendLayout()
@@ -194,6 +194,15 @@ Partial Class Main
         Me.ItemPanel.Size = New System.Drawing.Size(317, 265)
         Me.ItemPanel.TabIndex = 4
         Me.ItemPanel.Visible = False
+        '
+        'WorkerSku
+        '
+        Me.WorkerSku.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.WorkerSku.Location = New System.Drawing.Point(4, 160)
+        Me.WorkerSku.Name = "WorkerSku"
+        Me.WorkerSku.Size = New System.Drawing.Size(10, 97)
+        Me.WorkerSku.TabIndex = 16
+        Me.WorkerSku.Text = "1005630"
         '
         'Label3
         '
@@ -407,15 +416,6 @@ Partial Class Main
         Me.UpdateLocationsWorker.WorkerReportsProgress = True
         Me.UpdateLocationsWorker.WorkerSupportsCancellation = True
         '
-        'WorkerSku
-        '
-        Me.WorkerSku.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.WorkerSku.Location = New System.Drawing.Point(4, 160)
-        Me.WorkerSku.Name = "WorkerSku"
-        Me.WorkerSku.Size = New System.Drawing.Size(10, 97)
-        Me.WorkerSku.TabIndex = 16
-        Me.WorkerSku.Text = "1005630"
-        '
         'Main
         '
         Me.AcceptButton = Me.ScanButton
@@ -423,13 +423,13 @@ Partial Class Main
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(320, 320)
-        Me.Controls.Add(Me.ItemPanel)
         Me.Controls.Add(Me.InstructBox)
         Me.Controls.Add(Me.LocationPanel)
         Me.Controls.Add(Me.ScanButton)
         Me.Controls.Add(Me.Scanbox)
         Me.Controls.Add(Me.RestartButton)
         Me.Controls.Add(Me.QuitButton)
+        Me.Controls.Add(Me.ItemPanel)
         Me.ForeColor = System.Drawing.Color.White
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "Main"

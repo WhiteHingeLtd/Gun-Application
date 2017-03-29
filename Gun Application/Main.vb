@@ -328,7 +328,11 @@ Public Class Main
     Private Sub RemoveAllShelfLocations()
         For Each item As WhlSKU In ActiveCollection
             For Each child As WhlSKU In Skus.GatherChildren(item.ShortSku)
-                child.RemoveLocation(ActiveLocationID, authd)
+                Try
+                    child.RemoveLocation(ActiveLocationID, authd)
+                Catch ex As Exception
+
+                End Try
             Next
         Next
     End Sub

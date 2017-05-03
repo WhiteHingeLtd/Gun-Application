@@ -66,7 +66,12 @@ Public Class ShelfMenu
         End If
         If continuedel Then
             For Each item As WhlSKU In _AC
-                item.RemoveLocation(sender.Tag, Main.authd)
+                Try
+                    item.RemoveLocation(sender.Tag, Main.authd)
+                Catch ex As Exception
+
+                End Try
+                
             Next
         End If
         Me.Close()

@@ -16,9 +16,10 @@ Public Class ExistingShelfPrompt
     Private Sub DeleteButton_Click(sender As Object, e As EventArgs) Handles DeleteButton.Click
         For Each item As WhlSKU In ActiveCollection
             try
-                item.RemoveLocation(PrimaryLocationID, user)
+                item.RemoveLocationWithAudit(PrimaryLocationID,user)
+                
             Catch ex As Exception
-
+                item.RemoveLocation(PrimaryLocationID, user)
             End Try
             
         Next

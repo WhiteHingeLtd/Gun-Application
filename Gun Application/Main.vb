@@ -329,9 +329,10 @@ Public Class Main
         For Each item As WhlSKU In ActiveCollection
             For Each child As WhlSKU In Skus.GatherChildren(item.ShortSku)
                 Try
-                    child.RemoveLocation(ActiveLocationID, authd)
+                    child.RemoveLocationWithAudit(ActiveLocationID,authd)
+                    
                 Catch ex As Exception
-
+                    child.RemoveLocation(ActiveLocationID, authd)
                 End Try
             Next
         Next

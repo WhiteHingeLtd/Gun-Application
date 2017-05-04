@@ -54,7 +54,12 @@ Public Class ShelfMenu
             Dim scan As String = Main.RequestScan("Scan new location")
             If scan.StartsWith("qlo") Then
                 For Each item As WhlSKU In _AC
-                    item.AddLocationWithAudit(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                    try
+                        item.AddLocationWithAudit(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                    Catch ex As Exception
+                        item.AddNewLocation(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                    End Try
+                    
                     
                 Next
                 Me.Close()
@@ -115,7 +120,12 @@ Public Class ShelfMenu
             'Gogogo
             If Scanbox.Text.StartsWith("qlo") Then
                 For Each item As WhlSKU In _AC
-                    item.AddLocationWithAudit(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)                    
+                    Try
+                        item.AddLocationWithAudit(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                    Catch ex As Exception
+                        item.AddNewLocation(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                    End Try
+                                        
                 Next
                 Me.Close()
                 Scanbox.Text = ""

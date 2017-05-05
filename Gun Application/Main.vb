@@ -421,7 +421,6 @@ Public Class Main
     Private Sub _90MinRestart_Tick(sender As Object, e As EventArgs) Handles _90MinRestart.Tick
         IMSgC.iMsg("You should [RESTART] the app now. This is to load fresh item details like stock and sales.")
     End Sub
-    <DebuggerStepThrough>
     Private Sub UpdateLocationsWorker_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles UpdateLocationsWorker.DoWork
         While True
             If Not IsNothing(Skus) Then

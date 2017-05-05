@@ -125,7 +125,7 @@ Public Class Main
             End If
 
 
-        ElseIf Data.StartsWith("10") And (Data.Length = 7 Or Data.Length = 11) Then
+        ElseIf Data.StartsWith("10") And  Data.Length = 7 Then
             If Not IsNothing(authd) Then
                 'Item
                 ActiveCollection = Skus.GatherChildren(Data.Substring(0, 7))
@@ -151,6 +151,7 @@ Public Class Main
                 'Update stpck
                 Try
                     ActiveSingle.UpdateStock()
+                    ActiveSingle.RefreshLocations()
                 Catch ex As Exception
 
                 End Try
@@ -160,7 +161,7 @@ Public Class Main
                 If CurrentPrepacks.Count = 1 Then
                     Dim Prompt As New ExistingShelfPrompt
                     Prompt.TitleText.Text = "Exists in prepack..."
-                    Prompt.Body.Text = "This item already lives in prepack at the following location: " + vbNewLine + vbNewLine + CurrentPrepacks(0).LocationText
+                    Prompt.Body.Text = "This item already lives in prepack at the following location: " + vbNewLine + CurrentPrepacks(0).LocationText + vbNewLine + "Stock: " + CurrentPrepacks(0).Additional
                     Prompt.user = authd
                     Prompt.PrimaryLocationID = CurrentPrepacks(0).LocationID
                     Prompt.ActiveCollection = ActiveCollection
@@ -170,7 +171,7 @@ Public Class Main
                     'Create string.
                     Dim locstring As String = "This item already lives in prepack at the following locations:" + vbNewLine + vbNewLine
                     For Each location As SKULocation In CurrentPrepacks
-                        locstring += location.LocationText + vbNewLine
+                        locstring += location.LocationText + " Stock: " + location.Additional + vbNewLine
                     Next
                     IMSgC.iMsg(locstring, "Exists in prepack...")
 
@@ -200,6 +201,84 @@ Public Class Main
                 ItemPanel.Visible = True
                 Scanbox.Focus()
                 Instruct(ActiveSingle.ShortSku + "| " + Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
+            ElseIf Data.Length = 13 Or Data.length = 11
+                If Not IsNothing(authd) Then
+                    'Item
+                    Dim ChildColl = Skus.GatherChildren(Data.Substring(0, 7))
+                    ActiveCollection = Skus.SearchBarcodes(Data)
+
+
+                    'Iterate through each packsize and check the prepack setting - If it's listed
+                    Dim prepack As String = ""
+                    For Each item As WhlSKU In ChildColl
+                        If item.PackSize = 1 Then
+                            ActiveSingle = item
+                            Dim response As ArrayList = MySQL.SelectData("SELECT * FROM whldata.prepack_type WHERE Sku='" + item.ShortSku + "';")
+                            If response.Count = 0 Then
+                                prepack = PrepackTypeChooser.ChoosePrepack(item.Title.Label)
+                                If Not prepack = "Cancel" Then
+                                    MySQL.insertUpdate("REPLACE INTO whldata.prepack_type (Sku, Type) VALUES ('" + item.ShortSku + "','" + prepack + "')")
+                                End If
+                            Else
+                                prepack = response(0)(1).ToString
+                            End If
+                        End If
+                    Next
+
+                    'Update stpck
+                    Try
+                        ActiveSingle.UpdateStock()
+                        ActiveSingle.RefreshLocations()
+                    Catch ex As Exception
+
+                    End Try
+
+                    'Alert about existing locations if there are any.
+                    Dim CurrentPrepacks As List(Of SKULocation) = ActiveSingle.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
+                    If CurrentPrepacks.Count = 1 Then
+                        Dim Prompt As New ExistingShelfPrompt
+                        Prompt.TitleText.Text = "Exists in prepack..."
+                        Prompt.Body.Text = "This item already lives in prepack at the following location: " + vbNewLine + CurrentPrepacks(0).LocationText + vbNewLine + "Stock: " + CurrentPrepacks(0).Additional
+                        Prompt.user = authd
+                        Prompt.PrimaryLocationID = CurrentPrepacks(0).LocationID
+                        Prompt.ActiveCollection = ActiveCollection
+                        Prompt.DeleteButton.Text = "Delete " + CurrentPrepacks(0).LocationText
+                        Prompt.ShowDialog()
+                    ElseIf CurrentPrepacks.Count > 0 Then
+                        'Create string.
+                        Dim locstring As String = "This item already lives in prepack at the following locations:" + vbNewLine + vbNewLine
+                        For Each location As SKULocation In CurrentPrepacks
+                            locstring += location.LocationText + " Stock: " + location.Additional + vbNewLine
+                        Next
+                        IMSgC.iMsg(locstring, "Exists in prepack...")
+
+                    End If
+
+                    'Ask user how much new stock there is.
+                    Dim NewStock As Integer = AskNewStock()
+                    Newstockval = NewStock
+                    If ActiveSingle.SalesData.CombinedWeekly = 0 Then ActiveSingle.SalesData.CombinedWeekly = 1
+                    'Calcualte weeks remaining and worth.
+                    Dim WeeksRemaining As Single = (ActiveSingle.Stock.Total - NewStock) / ActiveSingle.SalesData.CombinedWeekly
+                    Dim Newweeks As Single = (NewStock / ActiveSingle.SalesData.CombinedWeekly)
+                    'Upodate the UI with stuff.
+                    ItemTitle.Text = ActiveSingle.Title.Label
+                    PrepackLabel.Text = prepack
+                    WeeksWorthLabel.Text = Math.Floor(Newweeks).ToString
+
+                    PackByLabel.Text = Math.Ceiling(Now.AddDays(WeeksRemaining * 7).DayOfYear / 7).ToString
+                    If (Now.AddDays(WeeksRemaining * 7) - Now).TotalDays > 350 Then
+                        PackByLabel.Text = "!!"
+                    End If
+
+
+                    UpdateLocations()
+
+                    LocationPanel.Visible = False
+                    ItemPanel.Visible = True
+                    Scanbox.Focus()
+                    Instruct(ActiveSingle.ShortSku + "| " + Newstockval.ToString + " entered | " + ActiveSingle.Stock.Total.ToString + " Total")
+                    End if
             Else
                 IMSgC.iMsg("You need to scan your user ID.", "User Error")
                 Instruct("Scan User ID", Color.Red)
@@ -318,8 +397,9 @@ Public Class Main
         Scanbox.Text = ""
         Scanbox.Focus()
     End Sub
-
+    'ToDo Do we want to remove all items?
     Private Sub CoolButton1_Click_1(sender As Object, e As EventArgs) Handles RemoveAllButton.Click
+        Throw new NotImplementedException
         Misc.OperationDialog("Remove items from shelf", AddressOf RemoveAllShelfLocations)
         Instruct("Now scan them back.")
         refox()
@@ -341,7 +421,7 @@ Public Class Main
     Private Sub _90MinRestart_Tick(sender As Object, e As EventArgs) Handles _90MinRestart.Tick
         IMSgC.iMsg("You should [RESTART] the app now. This is to load fresh item details like stock and sales.")
     End Sub
-
+    <DebuggerStepThrough>
     Private Sub UpdateLocationsWorker_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles UpdateLocationsWorker.DoWork
         While True
             If Not IsNothing(Skus) Then
@@ -365,7 +445,7 @@ Public Class Main
 
         End While
     End Sub
-
+    <DebuggerStepThrough>
     Private Sub UpdateLocationsWorker_ProgressChanged(sender As Object, e As System.ComponentModel.ProgressChangedEventArgs) Handles UpdateLocationsWorker.ProgressChanged
         WorkerSku.Text = e.UserState.ToString
     End Sub

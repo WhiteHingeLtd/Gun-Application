@@ -4,23 +4,23 @@ Public Class ShelfMenu
         Me.Close()
     End Sub
 
-    Dim _AC As SkuCollection
-    Dim _AS As WhlSKU
+    Dim ShelfNameSkuCollection As SkuCollection
+    Dim shelfNameActiveSingle As WhlSKU
 
 
     Friend Sub ShelfOptions(ActiveCollection As SkuCollection, ActiveSingle As WhlSKU)
         TitleText.Text = ActiveSingle.Title.Label
-        _AC = ActiveCollection
-        For Each item As WhlSKU In _AC
+        ShelfNameSkuCollection = ActiveCollection
+        For Each item As WhlSKU In ShelfNameSkuCollection
             Try
                 item.RefreshLocations()
             Catch ex As Exception
 
             End Try
         Next
-        _AS = ActiveSingle
+        shelfNameActiveSingle = ActiveSingle
         ExistingShelvesDialog.Controls.Clear()
-        For Each location As SKULocation In _AS.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
+        For Each location As SKULocation In shelfNameActiveSingle.GetLocationsByType({SKULocation.SKULocationType.Prepack, SKULocation.SKULocationType.PrepackInstant})
             ExistingShelvesDialog.Controls.Add(CreateButton(location.LocationText, location.LocationID))
         Next
         'ExistingShelvesDialog.Controls.Add(CreateButton("A01-21", 122))
@@ -53,7 +53,7 @@ Public Class ShelfMenu
             'Ask for a new scan to get a new location.
             Dim scan As String = Main.RequestScan("Scan new location")
             If scan.StartsWith("qlo") Then
-                For Each item As WhlSKU In _AC
+                For Each item As WhlSKU In ShelfNameSkuCollection
                     try
                         item.AddLocationWithAudit(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
                     Catch ex As Exception
@@ -71,7 +71,7 @@ Public Class ShelfMenu
             End If
         End If
         If continuedel Then
-            For Each item As WhlSKU In _AC
+            For Each item As WhlSKU In ShelfNameSkuCollection
                 Try
                     item.RemoveLocationWithAudit(sender.Tag,main.authd)
                     
@@ -119,7 +119,7 @@ Public Class ShelfMenu
         If e.KeyCode = Keys.Enter And Scanbox.Text.Length > 0 Then
             'Gogogo
             If Scanbox.Text.StartsWith("qlo") Then
-                For Each item As WhlSKU In _AC
+                For Each item As WhlSKU In ShelfNameSkuCollection
                     Try
                         item.AddLocationWithAudit(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)
                     Catch ex As Exception

@@ -311,7 +311,7 @@ Public Class Main
     Private Sub PrintLabelButton_Click(sender As Object, e As EventArgs) Handles PrintLabelButton.Click
         'IMSgC.iMsg("You can't do that yet", "Incomplete feature")
         labels.PrepackDelivery(ActiveSingle.Title.Label, GetIntials(PrepackLabel.Text), PackByLabel.Text, WeeksWorthLabel.Text + " weeks worth", ActiveSingle.ShortSku.Substring(2), Newstockval.ToString, (New Printing.PrinterSettings).PrinterName)
-        refox()
+        RefocusForScan()
         Instruct("Label printed", Color.Green)
     End Sub
 
@@ -336,7 +336,7 @@ Public Class Main
         End If
         PrepackLabel.Text = prepack
         Instruct("Done. Choose an action or scan")
-        refox()
+        RefocusForScan()
     End Sub
 
     Public Sub UpdateLocations()
@@ -390,10 +390,10 @@ Public Class Main
         Shelfmenu.ShelfOptions(ActiveCollection, ActiveSingle)
         UpdateLocations()
         Instruct("Done. Scan next item.")
-        refox()
+        RefocusForScan()
     End Sub
 
-    Private Sub refox()
+    Private Sub RefocusForScan()
         Scanbox.Text = ""
         Scanbox.Focus()
     End Sub
@@ -402,7 +402,7 @@ Public Class Main
         Throw new NotImplementedException
         Misc.OperationDialog("Remove items from shelf", AddressOf RemoveAllShelfLocations)
         Instruct("Now scan them back.")
-        refox()
+        RefocusForScan()
     End Sub
 
     Private Sub RemoveAllShelfLocations()

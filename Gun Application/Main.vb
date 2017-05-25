@@ -399,7 +399,7 @@ Public Class Main
     End Sub
     'ToDo Do we want to remove all items?
     Private Sub CoolButton1_Click_1(sender As Object, e As EventArgs) Handles RemoveAllButton.Click
-        Throw new NotImplementedException
+        
         Misc.OperationDialog("Remove items from shelf", AddressOf RemoveAllShelfLocations)
         Instruct("Now scan them back.")
         RefocusForScan()

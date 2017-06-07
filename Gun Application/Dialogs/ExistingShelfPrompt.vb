@@ -1,4 +1,6 @@
 ﻿Imports WHLClasses
+Imports WHLClasses.Exceptions
+
 Public Class ExistingShelfPrompt
 
     Friend PrimaryLocationID As Integer
@@ -17,7 +19,8 @@ Public Class ExistingShelfPrompt
         For Each item As WhlSKU In ActiveCollection
             try
                 item.RemoveLocationWithAudit(PrimaryLocationID,user)
-                
+            Catch ex2 As LocationNullReferenceException 
+                Continue For   
             Catch ex As Exception
                 item.RemoveLocation(PrimaryLocationID, user)
             End Try

@@ -1,4 +1,6 @@
 ﻿Imports WHLClasses
+Imports WHLClasses.Exceptions
+
 Public Class ShelfMenu
     Private Sub CoolButton2_Click(sender As Object, e As EventArgs) Handles CancelButton.Click
         Me.Close()
@@ -57,12 +59,16 @@ Public Class ShelfMenu
                     If (item.PackSize = 1)
                         try
                             item.AddLocationWithAudit(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                        Catch ex2 As LocationNullReferenceException 
+                            Continue For
                         Catch ex As Exception
                             item.AddNewLocation(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, Main.Newstockval)
                         End Try
                         Else 
                             try
                                 item.AddLocationWithAudit(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd,0)
+                            Catch ex2 As LocationNullReferenceException 
+                                Continue For
                             Catch ex As Exception
                                 item.AddNewLocation(Convert.ToInt32(scan.Replace("qlo", "")), Main.authd, 0)
                             End Try
@@ -81,9 +87,11 @@ Public Class ShelfMenu
             For Each item As WhlSKU In ShelfNameSkuCollection
                 Try
                     item.RemoveLocationWithAudit(sender.Tag,main.authd)
-                    
+                Catch ex2 As LocationNullReferenceException 
+                    Continue For
                 Catch ex As Exception
                     item.RemoveLocation(sender.Tag, Main.authd)
+
                 End Try
                 
             Next
@@ -130,13 +138,17 @@ Public Class ShelfMenu
                     If (item.PackSize = 1)
                         try
                             item.AddLocationWithAudit(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)
+                        Catch ex1 As LocationNullReferenceException 
+                            Continue For 
                         Catch ex As Exception
                             item.AddNewLocation(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, Main.Newstockval)
                         End Try
                     Else 
                         try
                             item.AddLocationWithAudit(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd,0)
-                        Catch ex As Exception
+                        Catch ex1 As LocationNullReferenceException
+                           Continue For
+                        Catch ex2 As Exception
                             item.AddNewLocation(Convert.ToInt32(Scanbox.Text.Replace("qlo", "")), Main.authd, 0)
                         End Try
                     End If              

@@ -1,5 +1,7 @@
 ﻿Imports WHLClasses
 Imports System.Drawing
+Imports WHLClasses.Exceptions
+
 Public Class Main
     Public Sub ResetMouse()
         Cursor.Position = New Point(0, 0)
@@ -410,7 +412,8 @@ Public Class Main
             For Each child As WhlSKU In Skus.GatherChildren(item.ShortSku)
                 Try
                     child.RemoveLocationWithAudit(ActiveLocationID,authd)
-                    
+                Catch ex2 As LocationNullReferenceException 
+                    Continue For  
                 Catch ex As Exception
                     child.RemoveLocation(ActiveLocationID, authd)
                 End Try
